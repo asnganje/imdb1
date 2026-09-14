@@ -104,7 +104,7 @@ class ImdbspiderSpider(scrapy.Spider):
             if not year:
                 year = "No year"
             li_items = response.css("div.sc-dcbc0103-0.fRoBlK li.ipc-inline-list__item")
-            duration = li_items[1].css("::text").get()
+            duration = li_items[2].css("::text").get()
             if not duration:
                 duration = "No duration"
             stars = response.css("div.sc-89427c75-3.foJWCy span.sc-a30a09c4-1.leFYws::text").get()
