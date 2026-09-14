@@ -1,5 +1,6 @@
 from ast import parse
 from time import sleep
+from urllib.parse import urljoin
 
 import scrapy
 from scrapy_playwright.page import PageMethod
@@ -60,6 +61,38 @@ class ImdbspiderSpider(scrapy.Spider):
             await awards_b.click()
             await page.get_by_test_id("adv-search-get-results").click()
 
+            product_urls = await page.locator("div.ipc-title--title a").evaluate_all(
+                "(elements)=>elements.map(el=>el.getAttribute('href')"
+            )
+
+            for product_url in product_urls:
+                product_url = urljoin(response.url, product_url)
+                yield scrapy.Request(
+                    product_url,
+                    callback=self.parse_product,
+                    meta={
+                        "playwright": True,
+                        "playwright_include_page": True,
+                        "playwright_context_kwargs": {
+                            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                            "viewport": {"width": 1920, "height": 1080},
+                            "locale": "en-US"
+                        },
+                        "playwright_navigation_kwargs": {
+                            "wait_until": "domcontentloaded",
+                            "timeout": 60000,  # 60 seconds
+                        },
+                        "playwright_page_methods": [
+                            PageMethod("wait_for_selector", "a.ipc-lockup-overlay"),
+                        ],
+                    },
+                    headers={
+                        "Accept-Language": "en-US,en;q=0.9",
+                    }
+                )
+
             sleep(5)
         finally:
             await page.close()
+    def parse_product(self, response):
+        pass
