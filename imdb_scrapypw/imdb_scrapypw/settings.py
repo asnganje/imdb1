@@ -109,7 +109,7 @@ DOWNLOAD_HANDLERS = {
 PLAYWRIGHT_BROWSER_TYPE = "chromium"
 
 PLAYWRIGHT_LAUNCH_OPTIONS = {
-    "headless": False,
+    "headless": True,
     "args": [
             "--disable-blink-features=AutomationControlled",
         ],

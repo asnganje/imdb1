@@ -3,11 +3,15 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/items.html
 
-from dataclasses import dataclass
 
+import scrapy
 
-@dataclass
-class ImdbScrapypwItem:
-    # define the fields for your item here like:
-    # name: str | None = None
-    pass
+class MovieItem(scrapy.Item):
+    name = scrapy.Field()
+    director = scrapy.Field()
+    year = scrapy.Field()
+    duration = scrapy.Field()
+    stars = scrapy.Field()
+    votes = scrapy.Field()
+    metascore = scrapy.Field()
+    description = scrapy.Field()

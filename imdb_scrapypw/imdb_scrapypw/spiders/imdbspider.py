@@ -1,9 +1,8 @@
-from ast import parse
-from time import sleep
 from urllib.parse import urljoin
 
 import scrapy
 from scrapy_playwright.page import PageMethod
+from ..items import MovieItem
 
 
 class ImdbspiderSpider(scrapy.Spider):
@@ -62,11 +61,12 @@ class ImdbspiderSpider(scrapy.Spider):
             await page.get_by_test_id("adv-search-get-results").click()
 
             product_urls = await page.locator("div.ipc-title--title a").evaluate_all(
-                "(elements)=>elements.map(el=>el.getAttribute('href')"
-            )
+                "(elements)=>elements.map(el=>el.getAttribute('href'))")
 
-            for product_url in product_urls:
+            for i, product_url in enumerate(product_urls):
                 product_url = urljoin(response.url, product_url)
+                if i == 5:
+                    break
                 yield scrapy.Request(
                     product_url,
                     callback=self.parse_product,
@@ -91,8 +91,46 @@ class ImdbspiderSpider(scrapy.Spider):
                     }
                 )
 
-            sleep(5)
         finally:
             await page.close()
-    def parse_product(self, response):
-        pass
+    async def parse_product(self, response):
+        page = response.meta["playwright_page"]
+        try:
+            movie_item = MovieItem()
+            name = response.css("span[data-testid = 'hero__primary-text']::text").get()
+            if not name:
+                name = "No name"
+            year = response.css("div.sc-dcbc0103-0.fRoBlK a.ipc-link::text").get()
+            if not year:
+                year = "No year"
+            li_items = response.css("div.sc-dcbc0103-0.fRoBlK li.ipc-inline-list__item")
+            duration = li_items[1].css("::text").get()
+            if not duration:
+                duration = "No duration"
+            stars = response.css("div.sc-89427c75-3.foJWCy span.sc-a30a09c4-1.leFYws::text").get()
+            if not stars:
+                stars = "No stars"
+            votes = response.css("div.sc-89427c75-3.foJWCy div.sc-a30a09c4-3.bhBkhl::text").get()
+            if not votes:
+                votes = "No votes"
+            metascore = response.css("span.score span::text").get()
+            if not metascore:
+                metascore = "No metascore"
+
+            description = response.css("section.sc-dcbc0103-4.cgzafN span[data-testid='plot-xl'] span[lang='en-US'] span::text").get()
+            if not description:
+                description = "No description"
+            director = response.css("div.sc-dcbc0103-3.kizyQE li").xpath(".//*[contains(text(), 'Director')]/ancestor::li//a/text()").get()
+            if not director:
+                director = "No Director details"
+            movie_item['name'] = name
+            movie_item['year'] = year
+            movie_item['duration'] = duration
+            movie_item['stars'] = stars
+            movie_item['votes'] = votes
+            movie_item['metascore'] = metascore
+            movie_item['description'] = description
+            movie_item['director'] = director
+            yield movie_item
+        finally:
+            await page.close()
