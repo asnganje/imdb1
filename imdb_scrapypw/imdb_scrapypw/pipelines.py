@@ -50,4 +50,9 @@ class ExcelPipeline:
         return  item
     def close_spider(self, spider):
         self.workbook.save("movies.xlsx")
+class GoogleSheetPipeline:
+    s_sheet_title = "scraper output"
+    w_sheet_title = "Movies"
+
+
 
