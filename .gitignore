@@ -5,6 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
-
+imdb_scrapypw/imdb_scrapypw/credentials.json
+imdb_scrapypw/imdb_scrapypw/imscraper.json
+imdb_scrapypw/imdb_scrapypw/authorized_user.json
 # Virtual environments
 .venv
