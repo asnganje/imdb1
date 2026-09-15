@@ -65,7 +65,7 @@ class ImdbspiderSpider(scrapy.Spider):
 
             for i, product_url in enumerate(product_urls):
                 product_url = urljoin(response.url, product_url)
-                if i == 5:
+                if i == 1:
                     break
                 yield scrapy.Request(
                     product_url,
